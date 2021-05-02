@@ -2,8 +2,15 @@
 const overview = document.querySelector('.overview');
 const username = "alejandravaldivia";
 const repoList = document.querySelector(".repo-list");
+// Creat a variable that selects the section with a class of "repos" where all your repo information appears. 
 const allReposContainer = document.querySelector(".repos");
+// Create a variable that selects the section with a class of "repo-data" where the individual repo data will appear.
 const repoData = document.querySelector(".repo-data");
+//Create a variable that should select the Back to Repo Gallery button. 
+const viewReposButton = document.querySelector(".view-repos");
+// Create a variable called filterInput to select the input with the "Search by name" placeholder
+const filterInput = document.querySelector(".filter-repos");
+
 
 // Create and name an async function to fetch information from your GitHub profile using the GitHub API address:
 const gitUserInfo = async function() {
@@ -36,14 +43,16 @@ const displayUserInfo = function (data) {
   overview.append(div);
   gitRepos();
 };
-
+// create and name a new async function to fetch your GitHub repos
 const gitRepos = async function () {
   const fetchRepos = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
   const repoData = await fetchRepos.json();
   displayRepos(repoData);
 };
 
+// create and name a function to display information about each repo
 const displayRepos = function (repos) {
+  filterInput.classList.remove("hide");
   for (const repo of repos) {
     const repoItem = document.createElement("li");
     repoItem.classList.add("repo");
@@ -52,8 +61,10 @@ const displayRepos = function (repos) {
   }
 };
 
+// create an event listener called repoList for a click event on the unordered list with a class of "repo-list." Pass the event (e) in the callback function.
 repoList.addEventListener("click", function (e) {
   if (e.target.matches("h3")) {
+    // In the body of the conditional statement, create a variable called repoName to target the innerText where the event happens. Log out the variable to the console.
     const repoName = e.target.innerText;
     repoInfo(repoName);
   };
@@ -79,6 +90,7 @@ const repoInfo = async function (repoName) {
 
 // create and name a new function to display the specific repo information. The function should accept two parameters:  repoInfo and languages.
 const displayRepoInfo = function (repoInfo, languages) {
+  viewReposButton.classList.remove("hide");
   repoData.innerHTML = "";
   repoData.classList.remove("hide");
   allReposContainer.classList.add("hide");
@@ -92,3 +104,35 @@ const displayRepoInfo = function (repoInfo, languages) {
   `;
   repoData.append(div);
 };
+
+//Add a click event to the Back Button
+//create a click event listener attached to your variable that points to the Back to Repo Gallery button. 
+viewReposButton.addEventListener("click", function () {
+  // unhide (display) the section with the class of "repos"
+  allReposContainer.classList.remove("hide");
+  // Add the "hide" class to the section where the individual repo data will appear
+  repoData.classList.add("hide");
+  // Also, add the "hide" class to the Back to Repo Gallery button itself. 
+  viewReposButton.classList.add("hide");
+});
+
+// Display the Input Element by creating a dynamic search
+filterInput.addEventListener("input", function (e) {
+  // create a variable to capture the value of the search text
+  const searchText = e.target.value;
+  const repos = document.querySelectorAll(".repo");
+  const searchLowerText = searchText.toLowerCase();
+
+  // Check to see if the lowercase repo text includes the lowercase search text.  
+  for (const repo of repos) {
+    const repoLowerText = repo.innerText.toLowerCase();
+    if (repoLowerText.includes(searchLowerText)) {
+      // If the repo contains the text, show it.
+      repo.classList.remove("hide");
+      // If it doesn't contain the text, hide the repo.
+    } else {
+      repo.classList.add("hide");
+    }
+  }
+  
+});
